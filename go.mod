@@ -1,6 +1,8 @@
-module github.com/nateinaction/tailscale-cert-renewer
+module github.com/nateinaction/pikvm-tailscale-cert-renewer
 
 go 1.22.5
+
+require tailscale.com v1.68.2
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
@@ -26,5 +28,4 @@ require (
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.zx2c4.com/wireguard/windows v0.5.3 // indirect
-	tailscale.com v1.68.2 // indirect
 )

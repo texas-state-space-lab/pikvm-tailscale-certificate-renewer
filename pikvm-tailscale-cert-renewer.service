@@ -1,0 +1,13 @@
+[Unit]
+Description=PiKVM Tailscale Certificate Renewer
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/pikvm-tailscale-cert-renewer
+Restart=always
+RestartSec=3
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

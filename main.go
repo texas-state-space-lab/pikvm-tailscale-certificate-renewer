@@ -6,10 +6,10 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/nateinaction/tailscale-cert-renewer/internal/certmanager"
-	"github.com/nateinaction/tailscale-cert-renewer/internal/pikvm"
-	"github.com/nateinaction/tailscale-cert-renewer/internal/sslpaths"
-	"github.com/nateinaction/tailscale-cert-renewer/internal/tailscale"
+	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/certmanager"
+	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/pikvm"
+	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/sslpaths"
+	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/tailscale"
 )
 
 const timeToSleep = 24 * time.Hour
