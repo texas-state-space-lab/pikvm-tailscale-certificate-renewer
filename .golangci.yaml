@@ -1,0 +1,116 @@
+run:
+  timeout: "5m"
+linters:
+  enable:
+    # golangci-lint default linters
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    # additional linters
+    # Pass any slice as any in variadic function shouldn't have place.
+    - asasalint
+    # Check for dangerous unicode characters.
+    - bidichk
+    # Close http responses
+    - bodyclose
+    # We should use inherited context instead of declaring new
+    - contextcheck
+    # It will reduce package cyclomatic complexity. e.g forbid 20x if else statement
+    - cyclop
+    # Duplicate code detection
+    - dupl
+    # Check for two duration multiplied
+    - durationcheck
+    # Check for common mistakes with errors
+    - errorlint
+    # Check exhaustiveness of enum switch statements.
+    - exhaustive
+    # Looping over structures consisted of pointer can be buggy. ref. https://github.com/kyoh86/exportloopref/blob/main/testdata/src/simple/simple.go
+    - exportloopref
+    # Need to check type assert e.g _,ok := a.(int) and check if assert failed if !ok {handle error}
+    - forcetypeassert
+    # Max function size is 60 lines and 40 statements.
+    - funlen
+    # Configuration of golang imports with wpe requirements.
+    - gci
+    # Lint ginkgo tests
+    - ginkgolinter
+    # Check if //go:... directives for complier are valid
+    - gocheckcompilerdirectives
+    # Check if we have variables in global scope. This kind of variables can easly cause side effects.
+    - gochecknoglobals
+    # Inits in most cases shouldn't be used. They have hard to predict behaviour and can cause confusion during debuging.
+    - gochecknoinits
+    # We dont want allow big if else statements and other cognitive complex functions. In most cases it is possible to write it better way.
+    - gocognit
+    # Find repeated strings that can be consts. We don't have to have magic values
+    - goconst
+    # Good tool for finding common code problems. Bugs/Performance etc.
+    - gocritic
+    # Reduces complexity of functions. if else || && etc
+    - gocyclo
+    # We dont want to leave unfinished things in code. Warn about TODO FIXME etc.
+    - godox
+    # Code should be always gofmted
+    - gofmt
+    # gofumpt is stricter than gofmt but works well together
+    - gofumpt
+    # It checks type of go code.
+    - typecheck
+    # mnd detect magic numbers.
+    - mnd
+    # Pintf like functions whould be called correctly
+    - goprintffuncname
+    # We want to be secure and protect our code
+    - gosec
+    # Consistent aliases of imports
+    - importas
+    # Interfaces shoudn't be too big
+    - interfacebloat
+    # Code lines should be less than 120 length
+    - lll
+    # slices that are declared with non zero size and are appended later
+    - makezero
+    # Find common typos in english
+    - misspell
+    # We should specify name of fields in structs that are mashalled to don't break contracts by mistake
+    - musttag
+    # We shoudn't use naked return statements in longer functions
+    - nakedret
+    # If statements shoudn't be deeply nestes
+    - nestif
+    # If we have an error we should return it in most of the cases
+    - nilerr
+    # We should always return at least one non nil value correctValue/error.
+    - nilnil
+    # http requests should be always send with ctx
+    - noctx
+    # Tests should be parallel if it is possible
+    - paralleltest
+    # Look for slices that could be prealocated -> it is faster
+    - prealloc
+    # We don't want to shadow predeclared functions. E.g don't want to have type int struct{}
+    - predeclared
+    # We dont want to reassign package functions like io.EOF = nil
+    - reassign
+    # Golang linter
+    - revive
+    # In tests we should use t.SetEnv instead of os.SetEnv
+    - tenv
+    # Check for correct use of t.Parallel in tests
+    - tparallel
+    # Functions should not have unused params
+    - unparam
+    # We should use correct stdlib vars instead of values. Like http request code values.
+    - usestdlibvars
+    # We don't need to assign values if it wont be used ever
+    - wastedassign
+    # Detect trailing whitespaces
+    - whitespace
+    # We should wrap an errors from external packages
+    - wrapcheck
+    # Add empty lines to have better readibility
+    - wsl
