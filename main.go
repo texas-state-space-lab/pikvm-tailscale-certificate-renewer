@@ -30,7 +30,7 @@ func main() {
 
 		if err := certManager.CheckCert(); err != nil {
 			if errors.Is(err, certmanager.ErrDoesNotExist) || errors.Is(err, certmanager.ErrExpiringSoon) {
-				slog.Info("cert is missing or expiring soon, generating new cert", "reason", err)
+				slog.Warn("cert is missing or expiring soon, generating new cert", "reason", err)
 
 				if err := pikvm.SetFSReadWrite(); err != nil {
 					slog.Error("failed filesystem mode change", "error", err)
@@ -39,10 +39,11 @@ func main() {
 
 				genCert(ctx, certManager)
 			} else {
-				slog.Error("failed to check cert", "error", err)
+				slog.Error("failed to check cert", "error", err, "cert_path", ssl.GetCertPath())
 			}
 		}
 
+		slog.Info("sleeping", "duration", timeToSleep)
 		time.Sleep(timeToSleep)
 	}
 }

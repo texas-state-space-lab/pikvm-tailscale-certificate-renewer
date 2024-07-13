@@ -3,6 +3,7 @@ package tailscale
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	ts "tailscale.com/client/tailscale"
 )
@@ -16,7 +17,7 @@ func GetDomain(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("failed to get status: %w", err)
 	}
 
-	return statusResp.Self.DNSName, nil
+	return strings.TrimSuffix(statusResp.Self.DNSName, "."), nil
 }
 
 // CertPair generates the cert pair for the given domain

@@ -3,6 +3,7 @@ package certmanager
 import (
 	"context"
 	"crypto/x509"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"os"
@@ -25,11 +26,11 @@ func NewCertManager(ssl *sslpaths.SSLPaths) *CertManager {
 const (
 	certDirPerms  = 0o755
 	certFilePerms = 0o644
-	closeToExpire = -7 * 24 * time.Hour
+	week          = -7 * 24 * time.Hour
 )
 
 var (
-	ErrExpiringSoon = errors.New("connection error")
+	ErrExpiringSoon = errors.New("cert is expiring soon")
 	ErrDoesNotExist = errors.New("cert does not exist")
 )
 
@@ -49,14 +50,19 @@ func (c *CertManager) CheckCert() error {
 		return fmt.Errorf("failed to read cert file: %w", err)
 	}
 
-	cert, err := x509.ParseCertificate(b)
-	if err != nil {
-		return fmt.Errorf("failed to parse cert: %w", err)
+	pBlock, _ := pem.Decode(b)
+	if pBlock == nil {
+		return errors.New("failed to decode cert file")
 	}
 
-	renewIfAfter := time.Now().Add(closeToExpire)
-	if cert.NotAfter.After(renewIfAfter) {
-		return ErrExpiringSoon
+	cert, err := x509.ParseCertificate(pBlock.Bytes)
+	if err != nil {
+		return fmt.Errorf("failed to parse cert block: %w", err)
+	}
+
+	remainingTime := time.Until(cert.NotAfter)
+	if remainingTime < week {
+		return fmt.Errorf("cert expriring in %s: %w", remainingTime.String(), ErrExpiringSoon)
 	}
 
 	return nil
