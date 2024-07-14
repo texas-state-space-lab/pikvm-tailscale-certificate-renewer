@@ -13,7 +13,10 @@ import (
 	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/tailscale"
 )
 
-const timeToSleep = 24 * time.Hour
+const (
+	timeToSleep = 24 * time.Hour
+	retryTime   = 1 * time.Minute
+)
 
 func main() {
 	ctx := context.Background()
@@ -21,7 +24,9 @@ func main() {
 	for {
 		domain, err := tailscale.GetDomain(ctx)
 		if err != nil {
-			slog.Error("failed to get domain", "error", err)
+			slog.Error("failed to get domain", "time_until_retry", retryTime, "error", err)
+			time.Sleep(retryTime)
+
 			continue
 		}
 
@@ -34,10 +39,16 @@ func main() {
 				slog.Warn("cert is missing or expiring soon, generating new cert", "reason", err)
 
 				if err := doCertRenewal(ctx, certManager, ssl); err != nil {
-					slog.Error("failed to renew cert", "error", err)
+					slog.Error("failed to renew cert", "time_until_retry", retryTime, "error", err)
+					time.Sleep(retryTime)
+
+					continue
 				}
 			} else {
 				slog.Error("failed to check cert", "error", err, "cert_path", ssl.GetCertPath())
+				time.Sleep(retryTime)
+
+				continue
 			}
 		}
 
