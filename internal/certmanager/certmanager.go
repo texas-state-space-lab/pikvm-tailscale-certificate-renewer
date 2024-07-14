@@ -6,9 +6,11 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"time"
 
+	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/pikvm"
 	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/sslpaths"
 	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/tailscale"
 )
@@ -74,6 +76,16 @@ func (c *CertManager) GenerateCert(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to get tailscale cert pair: %w", err)
 	}
+
+	if err := pikvm.SetFSReadWrite(); err != nil {
+		return fmt.Errorf("failed filesystem mode change: %w", err)
+	}
+
+	defer func() {
+		if err := pikvm.SetFSReadOnly(); err != nil {
+			slog.Error("failed filesystem mode change", "error", err)
+		}
+	}()
 
 	if _, err := os.Stat(c.ssl.GetDir()); os.IsNotExist(err) {
 		if err := os.MkdirAll(c.ssl.GetDir(), certDirPerms); err != nil {

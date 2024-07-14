@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -32,12 +33,9 @@ func main() {
 			if errors.Is(err, certmanager.ErrDoesNotExist) || errors.Is(err, certmanager.ErrExpiringSoon) {
 				slog.Warn("cert is missing or expiring soon, generating new cert", "reason", err)
 
-				if err := pikvm.SetFSReadWrite(); err != nil {
-					slog.Error("failed filesystem mode change", "error", err)
-					continue
+				if err := doCertRenewal(ctx, certManager, ssl); err != nil {
+					slog.Error("failed to renew cert", "error", err)
 				}
-
-				genCert(ctx, certManager)
 			} else {
 				slog.Error("failed to check cert", "error", err, "cert_path", ssl.GetCertPath())
 			}
@@ -48,14 +46,18 @@ func main() {
 	}
 }
 
-func genCert(ctx context.Context, certManager *certmanager.CertManager) {
-	defer func() {
-		if err := pikvm.SetFSReadOnly(); err != nil {
-			slog.Error("failed filesystem mode change", "error", err)
-		}
-	}()
-
+func doCertRenewal(ctx context.Context, certManager *certmanager.CertManager, ssl *sslpaths.SSLPaths) error {
 	if err := certManager.GenerateCert(ctx); err != nil {
-		slog.Error("failed to generate cert", "error", err)
+		return fmt.Errorf("failed to generate cert: %w", err)
 	}
+
+	if err := pikvm.SetCertsInNginxConfig(ssl); err != nil {
+		return fmt.Errorf("failed to set certs in nginx config: %w", err)
+	}
+
+	if err := pikvm.RestartNginx(); err != nil {
+		return fmt.Errorf("failed to restart nginx: %w", err)
+	}
+
+	return nil
 }
