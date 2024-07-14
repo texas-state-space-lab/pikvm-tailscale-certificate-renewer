@@ -67,6 +67,8 @@ func (c *CertManager) CheckCert() error {
 		return fmt.Errorf("cert expriring in %s: %w", remainingTime.String(), ErrExpiringSoon)
 	}
 
+	slog.Info("cert is valid", "remaining_time", remainingTime.String())
+
 	return nil
 }
 
