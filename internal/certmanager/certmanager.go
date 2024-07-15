@@ -2,13 +2,11 @@ package certmanager
 
 import (
 	"context"
-	"crypto/x509"
-	"encoding/pem"
 	"errors"
 	"fmt"
 	"log/slog"
 	"os"
-	"time"
+	"reflect"
 
 	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/pikvm"
 	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/sslpaths"
@@ -28,46 +26,47 @@ func NewCertManager(ssl *sslpaths.SSLPaths) *CertManager {
 const (
 	certDirPerms  = 0o755
 	certFilePerms = 0o644
-	week          = -7 * 24 * time.Hour
 )
 
 var (
-	ErrExpiringSoon = errors.New("cert is expiring soon")
-	ErrDoesNotExist = errors.New("cert does not exist")
+	ErrCertDoesNotExist = errors.New("cert does not exist")
+	ErrKeyDoesNotExist  = errors.New("key does not exist")
+	ErrCertDoesNotMatch = errors.New("cert does not match")
+	ErrKeyDoesNotMatch  = errors.New("key does not match")
 )
 
-// CheckCert checks if the cert exists and is not expiring soon
-func (c *CertManager) CheckCert() error {
-	_, err := os.Stat(c.ssl.GetCertPath())
-	if errors.Is(err, os.ErrNotExist) {
-		return ErrDoesNotExist
+// CheckCert checks the cert and key files to see if they exist and match the tailscale cert
+func (c *CertManager) CheckCert(ctx context.Context) error {
+	if _, err := os.Stat(c.ssl.GetCertPath()); os.IsNotExist(err) {
+		return ErrCertDoesNotExist
 	}
 
+	if _, err := os.Stat(c.ssl.GetKeyPath()); os.IsNotExist(err) {
+		return ErrKeyDoesNotExist
+	}
+
+	tsCert, tsKey, err := tailscale.CertPair(ctx, c.ssl.GetDomain())
 	if err != nil {
-		return fmt.Errorf("failed to stat cert file: %w", err)
+		return fmt.Errorf("failed to get tailscale cert pair: %w", err)
 	}
 
-	b, err := os.ReadFile(c.ssl.GetCertPath())
+	fsCert, err := os.ReadFile(c.ssl.GetCertPath())
 	if err != nil {
 		return fmt.Errorf("failed to read cert file: %w", err)
 	}
 
-	pBlock, _ := pem.Decode(b)
-	if pBlock == nil {
-		return errors.New("failed to decode cert file")
-	}
-
-	cert, err := x509.ParseCertificate(pBlock.Bytes)
+	fsKey, err := os.ReadFile(c.ssl.GetKeyPath())
 	if err != nil {
-		return fmt.Errorf("failed to parse cert block: %w", err)
+		return fmt.Errorf("failed to read key file: %w", err)
 	}
 
-	remainingTime := time.Until(cert.NotAfter)
-	if remainingTime < week {
-		return fmt.Errorf("cert expriring in %s: %w", remainingTime.String(), ErrExpiringSoon)
+	if reflect.DeepEqual(tsCert, fsCert) {
+		return ErrCertDoesNotMatch
 	}
 
-	slog.Info("cert is valid", "remaining_time", remainingTime.String())
+	if reflect.DeepEqual(tsKey, fsKey) {
+		return ErrKeyDoesNotMatch
+	}
 
 	return nil
 }

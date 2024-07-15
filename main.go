@@ -14,50 +14,41 @@ import (
 )
 
 const (
-	timeToSleep = 24 * time.Hour
-	retryTime   = 1 * time.Minute
+	timeToSleep = 1 * time.Minute
 )
 
 func main() {
 	ctx := context.Background()
 
 	for {
-		domain, err := tailscale.GetDomain(ctx)
-		if err != nil {
-			slog.Error("failed to get domain", "time_until_retry", retryTime, "error", err)
-			time.Sleep(retryTime)
+		if err := doCertCheckAndRenewal(ctx); err != nil {
+			slog.Error("failed to check or renew cert", "time_until_retry", timeToSleep, "error", err)
+			time.Sleep(timeToSleep)
 
 			continue
 		}
 
-		ssl := sslpaths.NewSSLPaths("/etc/kvmd/nginx/ssl/", domain)
-
-		certManager := certmanager.NewCertManager(ssl)
-
-		if err := certManager.CheckCert(); err != nil {
-			if errors.Is(err, certmanager.ErrDoesNotExist) || errors.Is(err, certmanager.ErrExpiringSoon) {
-				slog.Warn("cert is missing or expiring soon, generating new cert", "reason", err)
-
-				if err := doCertRenewal(ctx, certManager, ssl); err != nil {
-					slog.Error("failed to renew cert", "time_until_retry", retryTime, "error", err)
-					time.Sleep(retryTime)
-
-					continue
-				}
-			} else {
-				slog.Error("failed to check cert", "error", err, "cert_path", ssl.GetCertPath())
-				time.Sleep(retryTime)
-
-				continue
-			}
-		}
-
-		slog.Info("sleeping", "duration", timeToSleep)
 		time.Sleep(timeToSleep)
 	}
 }
 
-func doCertRenewal(ctx context.Context, certManager *certmanager.CertManager, ssl *sslpaths.SSLPaths) error {
+func doCertCheckAndRenewal(ctx context.Context) error {
+	domain, err := tailscale.GetDomain(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get tailscale domain: %w", err)
+	}
+
+	ssl := sslpaths.NewSSLPaths("/etc/kvmd/nginx/ssl/", domain)
+
+	certManager := certmanager.NewCertManager(ssl)
+
+	if err := certManager.CheckCert(ctx); !errors.Is(err, certmanager.ErrCertDoesNotExist) &&
+		!errors.Is(err, certmanager.ErrKeyDoesNotExist) &&
+		!errors.Is(err, certmanager.ErrCertDoesNotMatch) &&
+		!errors.Is(err, certmanager.ErrKeyDoesNotMatch) {
+		return fmt.Errorf("failed to check cert: %w", err)
+	}
+
 	if err := certManager.GenerateCert(ctx); err != nil {
 		return fmt.Errorf("failed to generate cert: %w", err)
 	}
