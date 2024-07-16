@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - arm
+    goarm:
+      - 7
+
+report_sizes: true
+
+archives:
+  - format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    files:
+      - LICENSE.md
+      - README.md
+      - pikvm-tailscale-cert-renewer.service
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+gomod:
+  proxy: true
+  env:
+    - GOPROXY=https://proxy.golang.org,direct
+    - GOSUMDB=sum.golang.org
+  mod: mod
+  # gobinary: go1.22.5
+
+# .goreleaser.yaml
+release:
+  github:
+    owner: nateinaction
+    name: pikvm-tailscale-cert-renewer
+
+  # TODO: Remove when comfortable with goreleaser setup
+  draft: true
+
+  # Will mark the release as not ready for production in case 
+  # there is an indicator for this in the tag e.g. v1.0.0-rc1
+  prerelease: auto
+
+  # Header for the release body.
+  header: |
+    ## PiKVM Tailscale Cert Renewer
