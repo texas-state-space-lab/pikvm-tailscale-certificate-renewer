@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/helpers"
 	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/sslpaths"
 )
 
@@ -51,8 +52,8 @@ func WriteNginxConfig(ssl *sslpaths.SSLPaths) error {
 
 	lines := strings.Split(string(b), "\n")
 
-	lines = setLine(lines, certlineRegex, ssl.GetNginxConfigCertLine())
-	lines = setLine(lines, keylineRegex, ssl.GetNginxConfigKeyLine())
+	lines = helpers.SetLine(lines, certlineRegex, ssl.GetNginxConfigCertLine())
+	lines = helpers.SetLine(lines, keylineRegex, ssl.GetNginxConfigKeyLine())
 
 	if err := SetFSReadWrite(); err != nil {
 		return fmt.Errorf("failed filesystem mode change: %w", err)
@@ -71,16 +72,4 @@ func WriteNginxConfig(ssl *sslpaths.SSLPaths) error {
 	slog.Info("wrote to nginx ssl config", "path", nginxSSLConf)
 
 	return nil
-}
-
-// setLine sets the line in the contents if the regex matches
-func setLine(contents []string, regex *regexp.Regexp, certLine string) []string {
-	for i, line := range contents {
-		if regex.MatchString(line) {
-			contents[i] = certLine
-			return contents
-		}
-	}
-
-	return append(contents, fmt.Sprintf("%s\n", certLine))
 }
