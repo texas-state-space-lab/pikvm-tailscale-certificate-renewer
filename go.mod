@@ -2,7 +2,10 @@ module github.com/nateinaction/pikvm-tailscale-cert-renewer
 
 go 1.22.5
 
-require tailscale.com v1.68.2
+require (
+	github.com/coreos/go-systemd/v22 v22.5.0
+	tailscale.com v1.68.2
+)
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect

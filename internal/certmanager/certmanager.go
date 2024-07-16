@@ -38,10 +38,14 @@ var (
 // CheckCert checks the cert and key files to see if they exist and match the tailscale cert
 func (c *CertManager) CheckCert(ctx context.Context) error {
 	if _, err := os.Stat(c.ssl.GetCertPath()); os.IsNotExist(err) {
+		slog.Warn("cert file does not exist", "path", c.ssl.GetCertPath())
+
 		return ErrCertDoesNotExist
 	}
 
 	if _, err := os.Stat(c.ssl.GetKeyPath()); os.IsNotExist(err) {
+		slog.Warn("key file does not exist", "path", c.ssl.GetKeyPath())
+
 		return ErrKeyDoesNotExist
 	}
 
@@ -60,11 +64,15 @@ func (c *CertManager) CheckCert(ctx context.Context) error {
 		return fmt.Errorf("failed to read key file: %w", err)
 	}
 
-	if reflect.DeepEqual(tsCert, fsCert) {
+	if !reflect.DeepEqual(tsCert, fsCert) {
+		slog.Warn("tailscale and filesystem certs do not match", "path", c.ssl.GetCertPath())
+
 		return ErrCertDoesNotMatch
 	}
 
-	if reflect.DeepEqual(tsKey, fsKey) {
+	if !reflect.DeepEqual(tsKey, fsKey) {
+		slog.Warn("tailscale and filesystem keys do not match", "path", c.ssl.GetCertPath())
+
 		return ErrKeyDoesNotMatch
 	}
 
@@ -98,9 +106,13 @@ func (c *CertManager) GenerateCert(ctx context.Context) error {
 		return fmt.Errorf("failed to write cert file: %w", err)
 	}
 
+	slog.Info("wrote cert file", "path", c.ssl.GetCertPath())
+
 	if err := os.WriteFile(c.ssl.GetKeyPath(), key, certFilePerms); err != nil {
 		return fmt.Errorf("failed to write key file: %w", err)
 	}
+
+	slog.Info("wrote key file", "path", c.ssl.GetKeyPath())
 
 	return nil
 }

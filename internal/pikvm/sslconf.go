@@ -14,6 +14,8 @@ import (
 var (
 	certlineRegex = regexp.MustCompile(`^ssl_certificate\s+.*`)
 	keylineRegex  = regexp.MustCompile(`^ssl_certificate_key\s+.*`)
+
+	ErrNginxConfigMissingSSLDetails = fmt.Errorf("nginx config missing ssl details")
 )
 
 const (
@@ -21,11 +23,8 @@ const (
 	nginxSSLConfPerms = 0o644
 )
 
-// SetCertsInNginxConfig sets the certificates in the nginx config file
-func SetCertsInNginxConfig(ssl *sslpaths.SSLPaths) error {
-	certLine := fmt.Sprintf("ssl_certificate %s;", ssl.GetCertPath())
-	keyLine := fmt.Sprintf("ssl_certificate_key %s;", ssl.GetKeyPath())
-
+// CheckNginxConfig checks the nginx config for the cert and key lines
+func CheckNginxConfig(ssl *sslpaths.SSLPaths) error {
 	b, err := os.ReadFile(nginxSSLConf)
 	if err != nil {
 		return fmt.Errorf("failed to read ssl.conf: %w", err)
@@ -33,21 +32,27 @@ func SetCertsInNginxConfig(ssl *sslpaths.SSLPaths) error {
 
 	lines := strings.Split(string(b), "\n")
 
-	if !slices.Contains(lines, certLine) || !slices.Contains(lines, keyLine) {
-		slog.Warn("cert or key line not found in nginx config, adding")
+	if !slices.Contains(lines, ssl.GetNginxConfigCertLine()) ||
+		!slices.Contains(lines, ssl.GetNginxConfigKeyLine()) {
+		slog.Warn("cert or key line not found in nginx config", "path", nginxSSLConf)
 
-		if err := writeNginxConfig(lines, certLine, keyLine); err != nil {
-			return fmt.Errorf("failed to write nginx config: %w", err)
-		}
+		return ErrNginxConfigMissingSSLDetails
 	}
 
 	return nil
 }
 
-// writeNginxConfig writes the cert and key lines to the nginx config
-func writeNginxConfig(lines []string, certLine string, keyLine string) error {
-	lines = setLine(lines, certlineRegex, certLine)
-	lines = setLine(lines, keylineRegex, keyLine)
+// WriteNginxConfig writes the cert and key lines to the nginx config
+func WriteNginxConfig(ssl *sslpaths.SSLPaths) error {
+	b, err := os.ReadFile(nginxSSLConf)
+	if err != nil {
+		return fmt.Errorf("failed to read ssl.conf: %w", err)
+	}
+
+	lines := strings.Split(string(b), "\n")
+
+	lines = setLine(lines, certlineRegex, ssl.GetNginxConfigCertLine())
+	lines = setLine(lines, keylineRegex, ssl.GetNginxConfigKeyLine())
 
 	if err := SetFSReadWrite(); err != nil {
 		return fmt.Errorf("failed filesystem mode change: %w", err)
@@ -60,8 +65,10 @@ func writeNginxConfig(lines []string, certLine string, keyLine string) error {
 	}()
 
 	if err := os.WriteFile(nginxSSLConf, []byte(strings.Join(lines, "\n")), nginxSSLConfPerms); err != nil {
-		return fmt.Errorf("failed to write ssl.conf: %w", err)
+		return fmt.Errorf("failed to write to nginx ssl config at %s: %w", nginxSSLConf, err)
 	}
+
+	slog.Info("wrote to nginx ssl config", "path", nginxSSLConf)
 
 	return nil
 }

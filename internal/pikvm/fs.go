@@ -2,6 +2,7 @@ package pikvm
 
 import (
 	"fmt"
+	"log/slog"
 	"os/exec"
 )
 
@@ -12,6 +13,8 @@ func SetFSReadOnly() error {
 		return fmt.Errorf("failed enable read-only mode with output: %s: %w", out, err)
 	}
 
+	slog.Info("filesystem mode changed to read-only")
+
 	return nil
 }
 
@@ -21,6 +24,8 @@ func SetFSReadWrite() error {
 	if err != nil {
 		return fmt.Errorf("failed enable read/write mode with output: %s: %w", out, err)
 	}
+
+	slog.Info("filesystem mode changed to read/write")
 
 	return nil
 }

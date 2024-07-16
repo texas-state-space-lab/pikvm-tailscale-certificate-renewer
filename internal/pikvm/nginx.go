@@ -2,6 +2,7 @@ package pikvm
 
 import (
 	"fmt"
+	"log/slog"
 	"os/exec"
 )
 
@@ -11,6 +12,8 @@ func RestartNginx() error {
 	if err != nil {
 		return fmt.Errorf("failed restart kvmd-nginx with output: %s: %w", out, err)
 	}
+
+	slog.Info("kvmd-nginx restarted")
 
 	return nil
 }
