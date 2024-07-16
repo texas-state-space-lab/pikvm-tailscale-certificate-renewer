@@ -15,7 +15,7 @@ builds:
     goarch:
       - arm
     goarm:
-      - 7
+      - "7"
 
 report_sizes: true
 
@@ -53,9 +53,6 @@ release:
   github:
     owner: nateinaction
     name: pikvm-tailscale-cert-renewer
-
-  # TODO: Remove when comfortable with goreleaser setup
-  draft: true
 
   # Will mark the release as not ready for production in case 
   # there is an indicator for this in the tag e.g. v1.0.0-rc1

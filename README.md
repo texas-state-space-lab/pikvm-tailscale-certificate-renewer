@@ -8,9 +8,5 @@ This tool assumes you have setup your PiKVM and the [tailscale integration](http
 This tool automatically discovers your tailscale domain, creates and renews certs for that domain, sets the cert path in the nginx config, and restarts NGINX.
 
 ```
-[root@pikvm ~]# systemctl edit --force --full pikvm-tailscale-cert-renewer.service
-Successfully installed edited file '/etc/systemd/system/pikvm-tailscale-cert-renewer.service'.
-[root@pikvm ~]# systemctl enable pikvm-tailscale-cert-re^C
-[root@pikvm ~]# mv pikvm-tailscale-cert-renewer /usr/local/bin/
-[root@pikvm ~]# systemctl enable pikvm-tailscale-cert-renewer.service
+curl -L -s "https://raw.githubusercontent.com/nateinaction/pikvm-tailscale-cert-renewer/main/install.sh" | bash
 ```
