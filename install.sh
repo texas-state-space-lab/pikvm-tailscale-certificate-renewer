@@ -7,8 +7,7 @@ set -e
 
 function cleanup {
     # Set FS to read-only
-    ro 2>&1 1>/dev/null
-    echo "filesystem mode changed to read-only"
+    ro
 }
 
 trap cleanup EXIT
@@ -26,8 +25,7 @@ latest_release=$(curl -s "https://api.github.com/repos/${repo}/releases/latest" 
 echo "Latest release: ${latest_release}"
 
 # Set FS to read/write
-rw 2>&1 1>/dev/null
-echo "filesystem mode changed to read/write"
+rw
 
 # Download binary and move to /usr/local/bin
 curl -L -s "https://github.com/${repo}/releases/download/${latest_release}/${tar_name}.tar.gz" -o /tmp/${tar_name}.tar.gz
@@ -41,3 +39,5 @@ curl -L -s "https://raw.githubusercontent.com/${repo}/${latest_release}/${name}.
 systemctl daemon-reload
 systemctl enable "${name}"
 systemctl start "${name}"
+
+echo "Installed ${name} ${latest_release}"
