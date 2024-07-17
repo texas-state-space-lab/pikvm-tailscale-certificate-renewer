@@ -1,8 +1,9 @@
 # PiKVM Tailscale Certificate Renewer
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-![CI](https://github.com/nateinaction/pikvm-tailscale-cert-renewer/actions/workflows/ci.yaml/badge.svg)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
+![Latest Release](https://img.shields.io/github/v/release/nateinaction/pikvm-tailscale-cert-renewer)
 [![Go Report Card](https://goreportcard.com/badge/github.com/nateinaction/pikvm-tailscale-cert-renewer)](https://goreportcard.com/report/github.com/nateinaction/pikvm-tailscale-cert-renewer)
+![CI](https://github.com/nateinaction/pikvm-tailscale-cert-renewer/actions/workflows/ci.yaml/badge.svg)
 
 Automatically renew Tailscale SSL certificates for your PiKVM with ease!
 
