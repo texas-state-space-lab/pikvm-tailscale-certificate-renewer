@@ -59,6 +59,10 @@ func doCertCheckAndRenewal(ctx context.Context) error {
 		return fmt.Errorf("failed to get tailscale domain: %w", err)
 	}
 
+	if domain == "" {
+		return errors.New("tailscale domain is empty")
+	}
+
 	ssl := sslpaths.NewSSLPaths("/etc/kvmd/nginx/ssl/", domain)
 
 	certManager := certmanager.NewCertManager(ssl)
