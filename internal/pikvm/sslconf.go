@@ -8,8 +8,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/helpers"
-	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/sslpaths"
+	"github.com/texas-state-space-lab/pikvm-tailscale-certificate-renewer/internal/helpers"
+	"github.com/texas-state-space-lab/pikvm-tailscale-certificate-renewer/internal/sslpaths"
 )
 
 var (

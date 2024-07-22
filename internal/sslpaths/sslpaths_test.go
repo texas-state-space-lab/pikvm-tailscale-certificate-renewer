@@ -3,7 +3,7 @@ package sslpaths_test
 import (
 	"testing"
 
-	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/sslpaths"
+	"github.com/texas-state-space-lab/pikvm-tailscale-certificate-renewer/internal/sslpaths"
 )
 
 func TestNewSSLPaths(t *testing.T) {
