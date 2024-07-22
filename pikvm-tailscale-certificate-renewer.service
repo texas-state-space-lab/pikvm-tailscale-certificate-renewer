@@ -1,6 +1,7 @@
 [Unit]
 Description=PiKVM Tailscale Certificate Renewer
-After=network.target
+Requires=tailscaled.service
+After=tailscaled.service
 
 [Service]
 Type=notify
