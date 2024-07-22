@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/helpers"
+	"github.com/texas-state-space-lab/pikvm-tailscale-certificate-renewer/internal/helpers"
 )
 
 func TestSetLine(t *testing.T) {

@@ -29,9 +29,9 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     files:
-      - LICENSE.md
+      - LICENSE
       - README.md
-      - pikvm-tailscale-cert-renewer.service
+      - pikvm-tailscale-certificate-renewer.service
 
 changelog:
   sort: asc
@@ -51,8 +51,8 @@ gomod:
 # .goreleaser.yaml
 release:
   github:
-    owner: nateinaction
-    name: pikvm-tailscale-cert-renewer
+    owner: texas-state-space-lab
+    name: pikvm-tailscale-certificate-renewer
 
   # Will mark the release as not ready for production in case 
   # there is an indicator for this in the tag e.g. v1.0.0-rc1

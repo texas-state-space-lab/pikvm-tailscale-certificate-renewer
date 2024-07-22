@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=notify
-ExecStart=/usr/local/bin/pikvm-tailscale-cert-renewer
+ExecStart=/usr/local/bin/pikvm-tailscale-certificate-renewer
 Restart=always
 RestartSec=3
 TimeoutSec=5

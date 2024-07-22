@@ -1,4 +1,4 @@
-module github.com/nateinaction/pikvm-tailscale-cert-renewer
+module github.com/texas-state-space-lab/pikvm-tailscale-certificate-renewer
 
 go 1.22.5
 

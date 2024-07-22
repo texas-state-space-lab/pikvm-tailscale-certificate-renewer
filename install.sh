@@ -12,8 +12,8 @@ function cleanup {
 
 trap cleanup EXIT
 
-owner="nateinaction"
-name="pikvm-tailscale-cert-renewer"
+owner="texas-state-space-lab"
+name="pikvm-tailscale-certificate-renewer"
 repo="${owner}/${name}"
 
 # later we may determine the architecture and download the correct binary

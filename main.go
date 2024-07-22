@@ -9,10 +9,10 @@ import (
 	"time"
 
 	systemd "github.com/coreos/go-systemd/v22/daemon"
-	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/certmanager"
-	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/pikvm"
-	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/sslpaths"
-	"github.com/nateinaction/pikvm-tailscale-cert-renewer/internal/tailscale"
+	"github.com/texas-state-space-lab/pikvm-tailscale-certificate-renewer/internal/certmanager"
+	"github.com/texas-state-space-lab/pikvm-tailscale-certificate-renewer/internal/pikvm"
+	"github.com/texas-state-space-lab/pikvm-tailscale-certificate-renewer/internal/sslpaths"
+	"github.com/texas-state-space-lab/pikvm-tailscale-certificate-renewer/internal/tailscale"
 )
 
 const (
