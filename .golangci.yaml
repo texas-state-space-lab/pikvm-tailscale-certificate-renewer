@@ -28,8 +28,6 @@ linters:
     - errorlint
     # Check exhaustiveness of enum switch statements.
     - exhaustive
-    # Looping over structures consisted of pointer can be buggy. ref. https://github.com/kyoh86/exportloopref/blob/main/testdata/src/simple/simple.go
-    - exportloopref
     # Need to check type assert e.g _,ok := a.(int) and check if assert failed if !ok {handle error}
     - forcetypeassert
     # Max function size is 60 lines and 40 statements.
